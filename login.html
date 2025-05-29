@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .auth-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 32px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .auth-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    
+    .auth-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #111827;
+      margin: 0;
+    }
+    
+    .auth-subtitle {
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 8px;
+    }
+    
+    .auth-form {
+      margin-top: 24px;
+    }
+    
+    .input-group {
+      margin-bottom: 16px;
+      position: relative;
+    }
+    
+    .input-icon {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      color: #9ca3af;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 10px 12px 10px 36px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    
+    .remember-me {
+      display: flex;
+      align-items: center;
+    }
+    
+    .remember-me input {
+      margin-right: 8px;
+    }
+    
+    .forgot-password {
+      font-size: 14px;
+    }
+    
+    .forgot-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .forgot-link:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 10px;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.3s;
+    }
+    
+    .submit-btn:hover {
+      background-color: #1d4ed8;
+    }
+    
+    .btn-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #93c5fd;
+    }
+    
+    .submit-btn:hover .btn-icon {
+      color: #bfdbfe;
+    }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+    
+    .auth-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .auth-link:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to your account</p>
+    </div>
+    
+    <form id="loginForm" class="auth-form">
+      <div class="input-group">
+        <div class="input-icon">
+          <i class="fas fa-user"></i>
+        </div>
+        <input id="username" name="username" type="text" required 
+          class="form-input" placeholder="Username">
+      </div>
+      
+      <div class="input-group">
+        <div class="input-icon">
+          <i class="fas fa-lock"></i>
+        </div>
+        <input id="password" name="password" type="password" required 
+          class="form-input" placeholder="Password">
+      </div>
+
+      <div class="form-options">
+        <div class="remember-me">
+          <input id="remember-me" name="remember-me" type="checkbox">
+          <label for="remember-me">Remember me</label>
+        </div>
+        <div class="forgot-password">
+          <a href="#" class="forgot-link">Forgot your password?</a>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        <span class="btn-icon">
+          <i class="fas fa-sign-in-alt"></i>
+        </span>
+        Sign in
+      </button>
+    </form>
+    
+    <div class="auth-footer">
+      <p>Don't have an account? 
+        <a href="/register" class="auth-link">Sign up</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const button = this.querySelector('button[type="submit"]');
+      const originalText = button.innerHTML;
+
+      // Show loading state
+      button.disabled = true;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+      try {
+        const res = await fetch("http://localhost:8000/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include", // important for sessions
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.redirect) {
+          window.location.href = data.redirect;  // Redirect to dashboard
+        } else {
+          throw new Error(data.message || "Login failed");
+        }
+      } catch (err) {
+        alert(err.message);
+        button.disabled = false;
+        button.innerHTML = originalText;
+      }
+    });
+  </script>
+</body>
+</html>

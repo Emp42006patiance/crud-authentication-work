@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .auth-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 32px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .auth-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    
+    .auth-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #111827;
+      margin: 0;
+    }
+    
+    .auth-subtitle {
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 8px;
+    }
+    
+    .auth-form {
+      margin-top: 24px;
+    }
+    
+    .input-group {
+      margin-bottom: 16px;
+      position: relative;
+    }
+    
+    .input-icon {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      color: #9ca3af;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 10px 12px 10px 36px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 10px;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.3s;
+    }
+    
+    .submit-btn:hover {
+      background-color: #1d4ed8;
+    }
+    
+    .btn-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #93c5fd;
+    }
+    
+    .submit-btn:hover .btn-icon {
+      color: #bfdbfe;
+    }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+    
+    .auth-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .auth-link:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+    
+    #message {
+      text-align: center;
+      font-size: 14px;
+      margin-top: 16px;
+    }
+    
+    .success-message {
+      color: #16a34a;
+    }
+    
+    .error-message {
+      color: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <h1 class="auth-title">Create an account</h1>
+      <p class="auth-subtitle">Join us today</p>
+    </div>
+    
+    <form id="registerForm" class="auth-form">
+      <div class="input-group">
+        <div class="input-icon">
+          <i class="fas fa-user"></i>
+        </div>
+        <input id="fullnames" name="fullnames" type="text" required 
+          class="form-input" placeholder="Full Names">
+      </div>
+      
+      <div class="input-group">
+        <div class="input-icon">
+          <i class="fas fa-at"></i>
+        </div>
+        <input id="username" name="username" type="text" required 
+          class="form-input" placeholder="Username">
+      </div>
+      
+      <div class="input-group">
+        <div class="input-icon">
+          <i class="fas fa-lock"></i>
+        </div>
+        <input id="password" name="password" type="password" required 
+          class="form-input" placeholder="Password">
+      </div>
+
+      <button type="submit" class="submit-btn">
+        <span class="btn-icon">
+          <i class="fas fa-user-plus"></i>
+        </span>
+        Register
+      </button>
+    </form>
+    
+    <div class="auth-footer">
+      <p>Already have an account? 
+        <a href="/login" class="auth-link">Sign in</a>
+      </p>
+    </div>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const fullnames = document.getElementById("fullnames").value;
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const button = this.querySelector('button[type="submit"]');
+      const originalText = button.innerHTML;
+
+      // Show loading state
+      button.disabled = true;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+
+      try {
+        const res = await fetch("http://localhost:8000/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include", // Important for session cookies
+          body: JSON.stringify({ fullnames, username, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          document.getElementById("message").textContent = data.message || "Registration successful! Redirecting...";
+          document.getElementById("message").className = "success-message";
+          
+          // Automatically log in the user after registration
+          try {
+            const loginRes = await fetch("http://localhost:8000/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              credentials: "include",
+              body: JSON.stringify({ username, password })
+            });
+
+            if (loginRes.ok) {
+              // Redirect to dashboard after successful login
+              window.location.href = "/dashboard";
+            } else {
+              // If auto-login fails, redirect to login page
+              window.location.href = "/login";
+            }
+          } catch (loginErr) {
+            console.error("Auto-login failed:", loginErr);
+            window.location.href = "/login";
+          }
+        } else {
+          throw new Error(data.message || "Registration failed");
+        }
+      } catch (err) {
+        document.getElementById("message").textContent = err.message;
+        document.getElementById("message").className = "error-message";
+      } finally {
+        button.disabled = false;
+        button.innerHTML = originalText;
+      }
+    });
+
+    // Check if user is already logged in (prevent accessing register page when logged in)
+    async function checkAuthStatus() {
+      try {
+        const res = await fetch("http://localhost:8000/auth/status", {
+          credentials: "include"
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated) {
+            window.location.href = "/dashboard";
+          }
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
+      }
+    }
+
+    // Run auth check when page loads
+    checkAuthStatus();
+  </script>
+</body>
+</html>
